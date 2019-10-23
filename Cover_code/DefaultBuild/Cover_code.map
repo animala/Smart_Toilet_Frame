@@ -1,0 +1,742 @@
+
+
+
+78K0R Linker W1.80                            Date: 6 Sep 2019 Page:   1
+
+Command:   -yD:\Renesas\CS+\CACX\Device\RL78\Devicefile -_msgoff -dr_lk.
+           dr -oDefaultBuild\Cover_code.lmf -gi00000000000000000000h -go
+           84h,3E00h,512 -gb0FFFFEAH -mi0 -s -pDefaultBuild\Cover_code.m
+           ap D:\Renesas\CS+\CACX\CA78K0R\V1.72\lib78k0r\s0rll.rel Defau
+           ltBuild\r_main.rel DefaultBuild\r_systeminit.rel DefaultBuild
+           \r_cg_cgc.rel DefaultBuild\r_cg_cgc_user.rel DefaultBuild\r_c
+           g_port.rel DefaultBuild\r_cg_port_user.rel DefaultBuild\r_cg_
+           serial.rel DefaultBuild\r_cg_serial_user.rel DefaultBuild\r_c
+           g_adc.rel DefaultBuild\r_cg_adc_user.rel DefaultBuild\r_cg_ti
+           mer.rel DefaultBuild\r_cg_timer_user.rel DefaultBuild\r_cg_wd
+           t.rel DefaultBuild\r_cg_wdt_user.rel DefaultBuild\Init.rel De
+           faultBuild\Receive.rel DefaultBuild\timer.rel DefaultBuild\Wo
+           rkDeal.rel DefaultBuild\r_pfdl.rel -blibrl78\pfdl.lib -bcl0ra
+           m.lib -bcl0rm.lib -bcl0rmf.lib -iD:\Renesas\CS+\CACX\CA78K0R\
+           V1.72\lib78k0r
+Para-file:
+Out-file:  DefaultBuild\Cover_code.lmf
+Map-file:  DefaultBuild\Cover_code.map
+Direc-file:r_lk.dr
+Directive: ;/***********************************************************
+           ***********************************************************
+           ;* DISCLAIMER
+           ;* This software is supplied by Renesas Electronics Corporati
+           on and is only 
+           ;* intended for use with Renesas products. No other uses are 
+           authorized. This 
+           ;* software is owned by Renesas Electronics Corporation and i
+           s protected under 
+           ;* all applicable laws, including copyright laws.
+           ;* THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WAR
+           RANTIES REGARDING 
+           ;* THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCL
+           UDING BUT NOT 
+           ;* LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PA
+           RTICULAR PURPOSE 
+           ;* AND NON-INFRINGEMENT.  ALL SUCH WARRANTIES ARE EXPRESSLY D
+           ISCLAIMED.
+           ;* TO THE MAXIMUM EXTENT PERMITTED NOT PROHIBITED BY LAW, NEI
+           THER RENESAS 
+           ;* ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIE
+           S SHALL BE LIABLE 
+           ;* FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUEN
+           TIAL DAMAGES FOR 
+           ;* ANY REASON RELATED TO THIS SOFTWARE, EVEN IF RENESAS OR IT
+           S AFFILIATES HAVE 
+           ;* BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+           ;* Renesas reserves the right, without notice, to make change
+           s to this software 
+           ;* and to discontinue the availability of this software.  By 
+           using this software, 
+           ;* you agree to the additional terms and conditions found by 
+           accessing the 
+           ;* following link:
+           ;* http://www.renesas.com/disclaimer
+           ;*
+           ;* Copyright (C) 2010, 2011 Renesas Electronics Corporation. 
+           All rights reserved.
+           ;************************************************************
+           **********************************************************/
+           
+           ;/*
+           ;************************************************************
+           ***********************************************************
+           ;* File Name    : r_lk.dr
+           ;* Version      : CodeGenerator for RL78/G13 V1.03.01 [11 Oct
+            2011]
+           ;* Device(s)    : R5F100LE
+           ;* Tool-Chain   : CA78K0R
+           ;* Description  : This is the link file.
+           ;* Creation Date: 2012/07/06
+           ;************************************************************
+           ***********************************************************
+           ;*/
+           ; [Sample of Link Directive File]
+           ; ***********************************************************
+           **
+           ; Link Directive File is created by users when memory or segm
+           ent
+           ; location needs to be changed from the default as the follow
+           ing
+           ; cases, for instance:
+           ;    1. In case the stack area should be in fixed area
+           ;    2. In case the external memory should be used
+           ;
+           ; Please change the start address, the size of memory, 
+           ; and the name of memory or segment according to your system,
+           
+           ; and link this file with -D linker option if necessary.
+           ;
+           ;   MEMORY directive : Declares an address in installed memor
+           y.
+           ;                      Devides memory into two or more areas 
+           and
+           ;                      specifies a memory area
+           ;   MERGE directive  : Specifies location of a segment
+           ; ***********************************************************
+           **
+           
+           ; <Example on how to specify the stack area>
+           ;  Please specify the linker option -SSTK.
+           ;  The stack area should be in the internal RAM area.
+           ;
+           ;      START ADDRESS, STACK SIZE
+           ;memory STK : ( 0FB000H, 100H )
+           ; <Example of locating data in external memory>
+           ; The section name output by C compiler can be changed with
+           ; #pragma section function.
+           ;
+           ; If the name of ROMization-related section which has global
+           ; variables with initial values is changed, the modification 
+           of
+           ; C start-up routine will be required. 
+           ; Please refer the CC78K0R C Compiler Language User's Manual 
+           
+           ; Language Chap.11 in detail.
+           ;
+           ; ex. This is the example of renaming the @@DATAL segment.
+           ;   #pragma section @@DATAL EXTDATA
+           ;
+           ;   By the following directives, "EXTDATA" segment is located
+            in EXMEM area.
+           ;
+           ;        START ADDRESS, MEMORY SIZE
+           ;***********************************************************
+           ; Redefined RAM area
+           ;***********************************************************
+           ; ----------------------------------------------------------
+           ; Redefined default data segment RAM
+           ; ----------------------------------------------------------
+           MEMORY RAM:( 0FF70AH, 0716H );MEMORY RAM:( 0FF30AH, 0B16H )
+           ; ----------------------------------------------------------
+           ; Define new memory entry for saddr area
+           ; ----------------------------------------------------------
+           MEMORY RAM_SADDR : ( 0FFE20H, 0001E0H )
+           
+
+
+*** Link information ***
+
+    51 output segment(s)
+ 1E3CH byte(s) real data
+  2742 symbol(s) defined
+
+
+*** Memory map ***
+
+
+  SPACE=REGULAR
+
+  MEMORY=ROM
+  BASE ADDRESS=00000H   SIZE=04000H
+         OUTPUT   INPUT    INPUT      BASE      SIZE
+         SEGMENT  SEGMENT  MODULE     ADDRESS
+         @@VECT00                     00000H    00002H  CSEG AT
+                  @@VECT00 @cstart    00000H    00002H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  @cstart    00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_main     00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_systeminit
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_cgc   00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_cgc_user
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_port
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_port_user
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_serial
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_serial_user
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_adc   00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_adc_user
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_timer
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_timer_user
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_wdt   00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_cg_wdt_user
+                                      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  Init       00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  Receive    00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  timer      00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  WorkDeal   00002H    00000H
+         @@CNSTL                      00002H    00000H  CSEG PAGE64KP
+                  @@CNSTL  r_pfdl     00002H    00000H
+         @@RLINIT                     00002H    00000H  CSEG UNIT64KP
+                  @@RLINIT @cstart    00002H    00000H
+                  @@RLINIT r_main     00002H    00000H
+                  @@RLINIT r_systeminit
+                                      00002H    00000H
+                  @@RLINIT r_cg_cgc   00002H    00000H
+                  @@RLINIT r_cg_cgc_user
+                                      00002H    00000H
+                  @@RLINIT r_cg_port
+                                      00002H    00000H
+                  @@RLINIT r_cg_port_user
+                                      00002H    00000H
+                  @@RLINIT r_cg_serial
+                                      00002H    00000H
+                  @@RLINIT r_cg_serial_user
+                                      00002H    00000H
+                  @@RLINIT r_cg_adc   00002H    00000H
+                  @@RLINIT r_cg_adc_user
+                                      00002H    00000H
+                  @@RLINIT r_cg_timer
+                                      00002H    00000H
+                  @@RLINIT r_cg_timer_user
+                                      00002H    00000H
+                  @@RLINIT r_cg_wdt   00002H    00000H
+                  @@RLINIT r_cg_wdt_user
+                                      00002H    00000H
+                  @@RLINIT Init       00002H    00000H
+                  @@RLINIT Receive    00002H    00000H
+                  @@RLINIT timer      00002H    00000H
+                  @@RLINIT WorkDeal   00002H    00000H
+                  @@RLINIT r_pfdl     00002H    00000H
+                  @@RLINIT @rom       00002H    00000H
+         @@R_INIS                     00002H    00000H  CSEG UNIT64KP
+                  @@R_INIS @cstart    00002H    00000H
+                  @@R_INIS r_main     00002H    00000H
+                  @@R_INIS r_systeminit
+                                      00002H    00000H
+                  @@R_INIS r_cg_cgc   00002H    00000H
+                  @@R_INIS r_cg_cgc_user
+                                      00002H    00000H
+                  @@R_INIS r_cg_port
+                                      00002H    00000H
+                  @@R_INIS r_cg_port_user
+                                      00002H    00000H
+                  @@R_INIS r_cg_serial
+                                      00002H    00000H
+                  @@R_INIS r_cg_serial_user
+                                      00002H    00000H
+                  @@R_INIS r_cg_adc   00002H    00000H
+                  @@R_INIS r_cg_adc_user
+                                      00002H    00000H
+                  @@R_INIS r_cg_timer
+                                      00002H    00000H
+                  @@R_INIS r_cg_timer_user
+                                      00002H    00000H
+                  @@R_INIS r_cg_wdt   00002H    00000H
+                  @@R_INIS r_cg_wdt_user
+                                      00002H    00000H
+                  @@R_INIS Init       00002H    00000H
+                  @@R_INIS Receive    00002H    00000H
+                  @@R_INIS timer      00002H    00000H
+                  @@R_INIS WorkDeal   00002H    00000H
+                  @@R_INIS r_pfdl     00002H    00000H
+                  @@R_INIS @rom       00002H    00000H
+         @@CALT                       00002H    00000H  CSEG
+                  @@CALT   @cstart    00002H    00000H
+                  @@CALT   r_main     00002H    00000H
+                  @@CALT   r_systeminit
+                                      00002H    00000H
+                  @@CALT   r_cg_cgc   00002H    00000H
+                  @@CALT   r_cg_cgc_user
+                                      00002H    00000H
+                  @@CALT   r_cg_port
+                                      00002H    00000H
+                  @@CALT   r_cg_port_user
+                                      00002H    00000H
+                  @@CALT   r_cg_serial
+                                      00002H    00000H
+                  @@CALT   r_cg_serial_user
+                                      00002H    00000H
+                  @@CALT   r_cg_adc   00002H    00000H
+                  @@CALT   r_cg_adc_user
+                                      00002H    00000H
+                  @@CALT   r_cg_timer
+                                      00002H    00000H
+                  @@CALT   r_cg_timer_user
+                                      00002H    00000H
+                  @@CALT   r_cg_wdt   00002H    00000H
+                  @@CALT   r_cg_wdt_user
+                                      00002H    00000H
+                  @@CALT   Init       00002H    00000H
+                  @@CALT   Receive    00002H    00000H
+                  @@CALT   timer      00002H    00000H
+                  @@CALT   WorkDeal   00002H    00000H
+                  @@CALT   r_pfdl     00002H    00000H
+         ??NMIROM                     00002H    00002H  CSEG
+         @@VECT04                     00004H    00002H  CSEG AT
+                  @@VECT04 r_cg_wdt_user
+                                      00004H    00002H
+* gap *                               00006H    00018H
+         @@VECT1E                     0001EH    00004H  CSEG AT
+                  @@VECT1E r_cg_serial_user
+                                      0001EH    00004H
+* gap *                               00022H    00008H
+         @@VECT2A                     0002AH    00002H  CSEG AT
+                  @@VECT2A r_cg_serial_user
+                                      0002AH    00002H
+         @@VECT2C                     0002CH    00006H  CSEG AT
+                  @@VECT2C r_cg_timer_user
+                                      0002CH    00006H
+* gap *                               00032H    00002H
+         @@VECT34                     00034H    00002H  CSEG AT
+                  @@VECT34 r_cg_adc_user
+                                      00034H    00002H
+         @@R_INIT                     00036H    0002CH  CSEG UNIT64KP
+                  @@R_INIT @cstart    00036H    00000H
+                  @@R_INIT r_main     00036H    0002CH
+                  @@R_INIT r_systeminit
+                                      00062H    00000H
+                  @@R_INIT r_cg_cgc   00062H    00000H
+                  @@R_INIT r_cg_cgc_user
+                                      00062H    00000H
+                  @@R_INIT r_cg_port
+                                      00062H    00000H
+                  @@R_INIT r_cg_port_user
+                                      00062H    00000H
+                  @@R_INIT r_cg_serial
+                                      00062H    00000H
+                  @@R_INIT r_cg_serial_user
+                                      00062H    00000H
+                  @@R_INIT r_cg_adc   00062H    00000H
+                  @@R_INIT r_cg_adc_user
+                                      00062H    00000H
+                  @@R_INIT r_cg_timer
+                                      00062H    00000H
+                  @@R_INIT r_cg_timer_user
+                                      00062H    00000H
+                  @@R_INIT r_cg_wdt   00062H    00000H
+                  @@R_INIT r_cg_wdt_user
+                                      00062H    00000H
+                  @@R_INIT Init       00062H    00000H
+                  @@R_INIT Receive    00062H    00000H
+                  @@R_INIT timer      00062H    00000H
+                  @@R_INIT WorkDeal   00062H    00000H
+                  @@R_INIT r_pfdl     00062H    00000H
+                  @@R_INIT @rom       00062H    00000H
+* gap *                               00062H    0005EH
+         ?CSEGOB0                     000C0H    00004H  CSEG OPT_BYTE
+         @@CODE                       000C4H    00000H  CSEG BASE
+                  @@CODE   r_main     000C4H    00000H
+                  @@CODE   r_systeminit
+                                      000C4H    00000H
+                  @@CODE   r_cg_cgc   000C4H    00000H
+                  @@CODE   r_cg_cgc_user
+                                      000C4H    00000H
+                  @@CODE   r_cg_port
+                                      000C4H    00000H
+                  @@CODE   r_cg_port_user
+                                      000C4H    00000H
+                  @@CODE   r_cg_serial
+                                      000C4H    00000H
+                  @@CODE   r_cg_serial_user
+                                      000C4H    00000H
+                  @@CODE   r_cg_adc   000C4H    00000H
+                  @@CODE   r_cg_adc_user
+                                      000C4H    00000H
+                  @@CODE   r_cg_timer
+                                      000C4H    00000H
+                  @@CODE   r_cg_timer_user
+                                      000C4H    00000H
+                  @@CODE   r_cg_wdt   000C4H    00000H
+                  @@CODE   r_cg_wdt_user
+                                      000C4H    00000H
+                  @@CODE   Init       000C4H    00000H
+                  @@CODE   Receive    000C4H    00000H
+                  @@CODE   timer      000C4H    00000H
+                  @@CODE   WorkDeal   000C4H    00000H
+                  @@CODE   r_pfdl     000C4H    00000H
+         ?CSEGSI                      000C4H    0000AH  CSEG
+         ?OCDSTAD                     000CEH    0000AH  CSEG
+         @@LCODE                      000D8H    00117H  CSEG BASE
+                  @@LCODE  @cstart    000D8H    000ADH
+                  @@LCODE  @curem     00185H    00036H
+                  @@LCODE  @divuw     001BBH    00034H
+         @@BASE                       001EFH    000B0H  CSEG BASE
+                  @@BASE   r_main     001EFH    00000H
+                  @@BASE   r_systeminit
+                                      001EFH    00000H
+                  @@BASE   r_cg_cgc   001EFH    00000H
+                  @@BASE   r_cg_cgc_user
+                                      001EFH    00000H
+                  @@BASE   r_cg_port
+                                      001EFH    00000H
+                  @@BASE   r_cg_port_user
+                                      001EFH    00000H
+                  @@BASE   r_cg_serial
+                                      001EFH    00000H
+                  @@BASE   r_cg_serial_user
+                                      001EFH    000A6H
+                  @@BASE   r_cg_adc   00295H    00000H
+                  @@BASE   r_cg_adc_user
+                                      00295H    00002H
+                  @@BASE   r_cg_timer
+                                      00297H    00000H
+                  @@BASE   r_cg_timer_user
+                                      00297H    00006H
+                  @@BASE   r_cg_wdt   0029DH    00000H
+                  @@BASE   r_cg_wdt_user
+                                      0029DH    00002H
+                  @@BASE   Init       0029FH    00000H
+                  @@BASE   Receive    0029FH    00000H
+                  @@BASE   timer      0029FH    00000H
+                  @@BASE   WorkDeal   0029FH    00000H
+                  @@BASE   r_pfdl     0029FH    00000H
+         @@CODEL                      0029FH    0146DH  CSEG
+                  @@CODEL  r_main     0029FH    00094H
+                  @@CODEL  r_systeminit
+                                      00333H    00036H
+                  @@CODEL  r_cg_cgc   00369H    00022H
+                  @@CODEL  r_cg_cgc_user
+                                      0038BH    00005H
+                  @@CODEL  r_cg_port
+                                      00390H    00027H
+                  @@CODEL  r_cg_port_user
+                                      003B7H    00000H
+                  @@CODEL  r_cg_serial
+                                      003B7H    00269H
+                  @@CODEL  r_cg_serial_user
+                                      00620H    00099H
+                  @@CODEL  r_cg_adc   006B9H    00067H
+                  @@CODEL  r_cg_adc_user
+                                      00720H    00000H
+                  @@CODEL  r_cg_timer
+                                      00720H    00148H
+                  @@CODEL  r_cg_timer_user
+                                      00868H    00000H
+                  @@CODEL  r_cg_wdt   00868H    00014H
+                  @@CODEL  r_cg_wdt_user
+                                      0087CH    00000H
+                  @@CODEL  Init       0087CH    00094H
+                  @@CODEL  Receive    00910H    00322H
+                  @@CODEL  timer      00C32H    00075H
+                  @@CODEL  WorkDeal   00CA7H    008B8H
+                  @@CODEL  r_pfdl     0155FH    001ADH
+         PFDL_COD                     0170CH    00096H  CSEG UNIT64KP
+                  PFDL_COD pfdl       0170CH    00096H
+         @@LCODEL                     017A2H    004D4H  CSEG
+                  @@LCODEL @stkinit   017A2H    00044H
+                  @@LCODEL sprintf_n
+                                      017E6H    0046AH
+                  @@LCODEL exit       01C50H    0001CH
+                  @@LCODEL strlen_n   01C6CH    0000AH
+* gap *                               01C76H    0038AH
+         @@CNST                       02000H    00046H  CSEG MIRRORP
+                  @@CNST   @cstart    02000H    00000H
+                  @@CNST   r_main     02000H    00046H
+                  @@CNST   r_systeminit
+                                      02046H    00000H
+                  @@CNST   r_cg_cgc   02046H    00000H
+                  @@CNST   r_cg_cgc_user
+                                      02046H    00000H
+                  @@CNST   r_cg_port
+                                      02046H    00000H
+                  @@CNST   r_cg_port_user
+                                      02046H    00000H
+                  @@CNST   r_cg_serial
+                                      02046H    00000H
+                  @@CNST   r_cg_serial_user
+                                      02046H    00000H
+                  @@CNST   r_cg_adc   02046H    00000H
+                  @@CNST   r_cg_adc_user
+                                      02046H    00000H
+                  @@CNST   r_cg_timer
+                                      02046H    00000H
+                  @@CNST   r_cg_timer_user
+                                      02046H    00000H
+                  @@CNST   r_cg_wdt   02046H    00000H
+                  @@CNST   r_cg_wdt_user
+                                      02046H    00000H
+                  @@CNST   Init       02046H    00000H
+                  @@CNST   Receive    02046H    00000H
+                  @@CNST   timer      02046H    00000H
+                  @@CNST   WorkDeal   02046H    00000H
+                  @@CNST   r_pfdl     02046H    00000H
+* gap *                               02046H    01DBAH
+         ??OCDROM                     03E00H    00200H  CSEG
+
+  MEMORY=RAM
+  BASE ADDRESS=FF70AH   SIZE=00716H
+         OUTPUT   INPUT    INPUT      BASE      SIZE
+         SEGMENT  SEGMENT  MODULE     ADDRESS
+         @@DATA                       FF70AH    00174H  DSEG BASEP
+                  @@DATA   @cstart    FF70AH    000BAH
+                  @@DATA   r_main     FF7C4H    00094H
+                  @@DATA   r_systeminit
+                                      FF858H    00000H
+                  @@DATA   r_cg_cgc   FF858H    00000H
+                  @@DATA   r_cg_cgc_user
+                                      FF858H    00000H
+                  @@DATA   r_cg_port
+                                      FF858H    00000H
+                  @@DATA   r_cg_port_user
+                                      FF858H    00000H
+                  @@DATA   r_cg_serial
+                                      FF858H    00016H
+                  @@DATA   r_cg_serial_user
+                                      FF86EH    00000H
+                  @@DATA   r_cg_adc   FF86EH    00000H
+                  @@DATA   r_cg_adc_user
+                                      FF86EH    00000H
+                  @@DATA   r_cg_timer
+                                      FF86EH    00000H
+                  @@DATA   r_cg_timer_user
+                                      FF86EH    00000H
+                  @@DATA   r_cg_wdt   FF86EH    00000H
+                  @@DATA   r_cg_wdt_user
+                                      FF86EH    00000H
+                  @@DATA   Init       FF86EH    00000H
+                  @@DATA   Receive    FF86EH    00010H
+                  @@DATA   timer      FF87EH    00000H
+                  @@DATA   WorkDeal   FF87EH    00000H
+                  @@DATA   r_pfdl     FF87EH    00000H
+                  @@DATA   @rom       FF87EH    00000H
+         @@INIT                       FF87EH    0002CH  DSEG BASEP
+                  @@INIT   @cstart    FF87EH    00000H
+                  @@INIT   r_main     FF87EH    0002CH
+                  @@INIT   r_systeminit
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_cgc   FF8AAH    00000H
+                  @@INIT   r_cg_cgc_user
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_port
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_port_user
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_serial
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_serial_user
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_adc   FF8AAH    00000H
+                  @@INIT   r_cg_adc_user
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_timer
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_timer_user
+                                      FF8AAH    00000H
+                  @@INIT   r_cg_wdt   FF8AAH    00000H
+                  @@INIT   r_cg_wdt_user
+                                      FF8AAH    00000H
+                  @@INIT   Init       FF8AAH    00000H
+                  @@INIT   Receive    FF8AAH    00000H
+                  @@INIT   timer      FF8AAH    00000H
+                  @@INIT   WorkDeal   FF8AAH    00000H
+                  @@INIT   r_pfdl     FF8AAH    00000H
+                  @@INIT   @rom       FF8AAH    00000H
+         @@INIS                       FF8AAH    00000H  DSEG UNITP
+                  @@INIS   @cstart    FF8AAH    00000H
+                  @@INIS   r_main     FF8AAH    00000H
+                  @@INIS   r_systeminit
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_cgc   FF8AAH    00000H
+                  @@INIS   r_cg_cgc_user
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_port
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_port_user
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_serial
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_serial_user
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_adc   FF8AAH    00000H
+                  @@INIS   r_cg_adc_user
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_timer
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_timer_user
+                                      FF8AAH    00000H
+                  @@INIS   r_cg_wdt   FF8AAH    00000H
+                  @@INIS   r_cg_wdt_user
+                                      FF8AAH    00000H
+                  @@INIS   Init       FF8AAH    00000H
+                  @@INIS   Receive    FF8AAH    00000H
+                  @@INIS   timer      FF8AAH    00000H
+                  @@INIS   WorkDeal   FF8AAH    00000H
+                  @@INIS   r_pfdl     FF8AAH    00000H
+                  @@INIS   @rom       FF8AAH    00000H
+         @@DATS                       FF8AAH    00000H  DSEG UNITP
+                  @@DATS   @cstart    FF8AAH    00000H
+                  @@DATS   r_main     FF8AAH    00000H
+                  @@DATS   r_systeminit
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_cgc   FF8AAH    00000H
+                  @@DATS   r_cg_cgc_user
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_port
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_port_user
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_serial
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_serial_user
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_adc   FF8AAH    00000H
+                  @@DATS   r_cg_adc_user
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_timer
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_timer_user
+                                      FF8AAH    00000H
+                  @@DATS   r_cg_wdt   FF8AAH    00000H
+                  @@DATS   r_cg_wdt_user
+                                      FF8AAH    00000H
+                  @@DATS   Init       FF8AAH    00000H
+                  @@DATS   Receive    FF8AAH    00000H
+                  @@DATS   timer      FF8AAH    00000H
+                  @@DATS   WorkDeal   FF8AAH    00000H
+                  @@DATS   r_pfdl     FF8AAH    00000H
+                  @@DATS   @rom       FF8AAH    00000H
+         @@INITL                      FF8AAH    00000H  DSEG UNIT64KP
+                  @@INITL  @cstart    FF8AAH    00000H
+                  @@INITL  r_main     FF8AAH    00000H
+                  @@INITL  r_systeminit
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_cgc   FF8AAH    00000H
+                  @@INITL  r_cg_cgc_user
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_port
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_port_user
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_serial
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_serial_user
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_adc   FF8AAH    00000H
+                  @@INITL  r_cg_adc_user
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_timer
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_timer_user
+                                      FF8AAH    00000H
+                  @@INITL  r_cg_wdt   FF8AAH    00000H
+                  @@INITL  r_cg_wdt_user
+                                      FF8AAH    00000H
+                  @@INITL  Init       FF8AAH    00000H
+                  @@INITL  Receive    FF8AAH    00000H
+                  @@INITL  timer      FF8AAH    00000H
+                  @@INITL  WorkDeal   FF8AAH    00000H
+                  @@INITL  r_pfdl     FF8AAH    00000H
+                  @@INITL  @rom       FF8AAH    00000H
+         @@DATAL                      FF8AAH    00000H  DSEG UNIT64KP
+                  @@DATAL  @cstart    FF8AAH    00000H
+                  @@DATAL  r_main     FF8AAH    00000H
+                  @@DATAL  r_systeminit
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_cgc   FF8AAH    00000H
+                  @@DATAL  r_cg_cgc_user
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_port
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_port_user
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_serial
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_serial_user
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_adc   FF8AAH    00000H
+                  @@DATAL  r_cg_adc_user
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_timer
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_timer_user
+                                      FF8AAH    00000H
+                  @@DATAL  r_cg_wdt   FF8AAH    00000H
+                  @@DATAL  r_cg_wdt_user
+                                      FF8AAH    00000H
+                  @@DATAL  Init       FF8AAH    00000H
+                  @@DATAL  Receive    FF8AAH    00000H
+                  @@DATAL  timer      FF8AAH    00000H
+                  @@DATAL  WorkDeal   FF8AAH    00000H
+                  @@DATAL  r_pfdl     FF8AAH    00000H
+                  @@DATAL  @rom       FF8AAH    00000H
+         @@BITS                       FF8AAH    00000H  BSEG
+                  @@BITS   @cstart    FF8AAH.0  00000H.0
+                  @@BITS   r_main     FF8AAH.0  00000H.0
+                  @@BITS   r_systeminit
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_cgc   FF8AAH.0  00000H.0
+                  @@BITS   r_cg_cgc_user
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_port
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_port_user
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_serial
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_serial_user
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_adc   FF8AAH.0  00000H.0
+                  @@BITS   r_cg_adc_user
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_timer
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_timer_user
+                                      FF8AAH.0  00000H.0
+                  @@BITS   r_cg_wdt   FF8AAH.0  00000H.0
+                  @@BITS   r_cg_wdt_user
+                                      FF8AAH.0  00000H.0
+                  @@BITS   Init       FF8AAH.0  00000H.0
+                  @@BITS   Receive    FF8AAH.0  00000H.0
+                  @@BITS   timer      FF8AAH.0  00000H.0
+                  @@BITS   WorkDeal   FF8AAH.0  00000H.0
+                  @@BITS   r_pfdl     FF8AAH.0  00000H.0
+* gap *                               FF8AAH    00576H
+
+  MEMORY=RAM_SADDR
+  BASE ADDRESS=FFE20H   SIZE=001E0H
+         OUTPUT   INPUT    INPUT      BASE      SIZE
+         SEGMENT  SEGMENT  MODULE     ADDRESS
+* gap *                               FFE20H    000B4H
+         @@SEGREG                     FFED4H    00004H  DSEG AT
+                  @@SEGREG @SEGREG    FFED4H    00004H
+         @@RTARG0                     FFED8H    00008H  DSEG AT
+                  @@RTARG0 @RTARG0    FFED8H    00008H
+* gap *                               FFEE0H    00020H
+* gap (Not Free Area) *               FFF00H    00100H
+
+
+ Target chip : R5F100AA
+ Device file : V1.14
+
