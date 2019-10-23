@@ -1,0 +1,615 @@
+				..\System_files\MN101AF50D.lst    Page 1
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+                        1         ;/**********************************************************************/
+                        2         #ifdef DOC
+                        X         
+                        X         ;TITLE:  僗僞乕僩傾僢僾(MN101AF50DXW)
+                        X         
+                        X         ;TITDOC: 僗僞乕僩傾僢僾儖乕僠儞
+                        X         
+                        X         ;MODIFY: ZKL_William
+                        X         
+                        XX        ;DATE:   2014/07/11
+                        XX        
+                        12        #endif
+                        13        ;/**********************************************************************/
+                        14        #define STACKTOP 0x1000			;1kByte		/* @016YS[10/07/28]change 0x03ff -> 0x0400 */
+                        15        ;#define OSC2M
+                        16        ;#define OSC4M              ;      fosc =fpll=fs
+                        17        #define OSC8M              ;      fosc =fpll=fs
+                        18        ;#define OSC10M
+                        19        ;#define OSC16M
+                        20        ;#define OSC20M
+                        21        #ifdef OSC2M
+                        XX        							; internal osc 16MHz :1/2.0MHz * (8 + 2(HANDSHAKE)) * (24 + 1) = 125us	
+                        XX        #define	WAIT_TIME	200		
+                        XX        							; External Oscillation  2MHz : 1/2MHz * 7cycle *  8 = 175us
+                        25        #endif 
+                        26        
+                        27        #ifdef OSC4M
+                        XX        
+                        XX        							
+                        XX        #define	WAIT_TIME	100		
+                        XX        							; External Oscillation  4MHz : 1/4MHz * 7cycle *  8 = 175us
+                        32        #endif
+                        33        
+                        34        #ifdef OSC8M
+                        35        
+                        36        #define	WAIT_TIME	50		
+                        37        							; External Oscillation  8MHz : 1/8MHz * 7cycle *  8 = 175us
+                        38        
+                        39        #endif 
+                        40        
+                        41        #ifdef OSC10M
+                        XX        
+                        XX        #define	WAIT_TIME	40		
+                        XX        							; External Oscillation  10MHz : 1/10MHz * 7cycle *  8 = 175us
+                        XX        
+                        46        #endif 
+                        47        #ifdef OSC16M
+                        XX        
+                        XX        #define	WAIT_TIME	25		
+                        XX        							; External Oscillation  16MHz : 1/16MHz * 7cycle *  8 = 175us
+                        XX        
+                        52        #endif 
+                        53        
+                        54        #ifdef OSC20M
+                        XX        
+                        XX        #define	WAIT_TIME	20		
+				..\System_files\MN101AF50D.lst    Page 2
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+                        XX        							; External Oscillation20MHz : 1/20MHz * 7cycle *  8 = 175us
+                        XX        
+                        59        #endif 
+                        60        ;CPU Control Register
+                        61        #define	CPUM		0x3F00
+                        62        
+                        63        ;Clock Contrl Relations Register
+                        64        #define	HANDSHAKE	0x3F06		;Internal ROM access method control register (Clock more than 10MHz is n
+                        65        #define OSCCNT		0x3F1A		;External high-speed oscillation control register
+                        66        #define	RCCNT		0x3F1B		;Internal high-speed oscillation control register
+                        67        #define	OSCSCNT 	0x3F1C		;External low-speed oscillation control register
+                        68        ;#define	RCSCNT 		0x3F1D		;Internal low-speed oscillation control register
+                        69        				; 50D无内部低速振荡器
+                        70        #define CHDRVSEL	0x3DF0		;External Oscillation Control Register
+                        71        
+                        72        #define	PLLCNT		0x3F1F		;Clock multiplication circuit control register
+                        73        
+                        74        #define	OSCLOCK 	0x3E56		;Oscillation Control Register Protect Register
+                        75        
+                        76        ;#define WDCTR2		0x3F05		;Watchdog timer 2 control register 50D与51A不同，没有看门狗2
+                        77        #define WDCTR           0x3F02
+                        78        #define LVIMD           0x3F2F
+                        79        #if 0 ; sean				; 50D没有看门狗2以及保护寄存器
+                        XX        #define WD2MDSEL	0x3F4C
+                        XX        #define PRTKEY		0x3E50
+                        82        #endif
+                        83        
+                        84        ;Definition
+                        85        ; sean, using external 8M OSC
+                        86        #define	SC_SLECT	0		;0:External Oscillation	1:Internal Oscillation
+                        87        
+                        88        #define	BP_SLECT	1		;0:ICE/FLASH	1:Debug Probe Using
+                        89        #define testpll         1               ;   1:*2   /2   PLL
+                        90        #define	WAIT_EXT	0x186A		; internal osc 20MHz :1/10MHz * (8 + 2(HANDSHAKE)) * (0x1869 + 1) = 10ms	
+                        91        							
+                        92        
+                        93        
+                        94        _STEXT		SECTION	CODE,PUBLIC,0
+                        95        _CONST		SECTION	CODE,PUBLIC,1
+                        96        _GCONST		SECTION	CODE,PUBLIC,1
+                        97        _DATA		SECTION	DATA,PUBLIC,1
+                        98        _GDATA		SECTION	DATA,PUBLIC,1
+                        99        _ROMDATA	SECTION	CODE,PUBLIC,1
+                        100       _GROMDATA	SECTION	CODE,PUBLIC,1
+                        101       _ROMDATAEND	SECTION	CODE,PUBLIC,1
+                        102       _ENTRY		SECTION CODE,PUBLIC,0
+                        103       _TEXT		SECTION	CODE,PUBLIC,0
+                        104       _BSS		SECTION	DATA,PUBLIC,1
+                        105       _GBSS		SECTION	DATA,PUBLIC,1
+                        106       _BSSEND		SECTION	DATA,PUBLIC,1
+                        107       
+                        108       	GLOBAL	_EnableIrq, _DisableIrq, _vRAM_NMI
+                        109       	
+                        110       _STEXT		SECTION			; Designate -T_STEXT=4000 by Linker
+000000   00000000     + 111       	da	A(Reset)	;0 reset vector address
+000004   00000000     + 112       	da	A(NoIRQ)	;1 interrupt vector ( Actual interrupt function name must be set. )	
+				..\System_files\MN101AF50D.lst    Page 3
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+000008   00000000     + 113       	da	A(NoIRQ)	;2 interrupt vector ( Actual interrupt function name must be set. )
+00000C   00000000     + 114       	da	A(NoIRQ)	;3 interrupt vector ( Actual interrupt function name must be set. )
+000010   00000000     + 115       	da	A(NoIRQ)	;4 interrupt vector ( Actual interrupt function name must be set. )
+000014   00000000     + 116       	da	A(NoIRQ)	;5 interrupt vector ( Actual interrupt function name must be set. )
+000018   00000000     + 117       	da	A(NoIRQ)	;6 interrupt vector ( Actual interrupt function name must be set. )
+00001C   00000000     + 118       	da	A(NoIRQ)	;7 interrupt vector ( Actual interrupt function name must be set. )
+000020   00000000     + 119       	da	A(NoIRQ)	;8 interrupt vector ( Actual interrupt function name must be set. )
+000024   00000000     + 120       	da	A(_INT_TM0)	;9 interrupt vector ( A function name, "_Interrupt", is  set. )
+000028   00000000     + 121       	da	A(_INT_TM1)	;10 interrupt vector ( Actual interrupt function name must be set. )
+00002C   00000000     + 122       	da	A(NoIRQ)	;11 interrupt vector ( Actual interrupt function name must be set. )
+000030   00000000     + 123       	da	A(_INT_TM3)	;12 interrupt vector ( Actual interrupt function name must be set. )
+000034   00000000     + 124       	da	A(NoIRQ)	;13 interrupt vector ( Actual interrupt function name must be set. )
+000038   00000000     + 125       	da	A(NoIRQ)	;14 interrupt vector ( Actual interrupt function name must be set. )
+00003C   00000000     + 126       	da	A(NoIRQ)	;15 interrupt vector ( Actual interrupt function name must be set. )
+000040   00000000     + 127       	da	A(NoIRQ)	;16 interrupt vector ( Actual interrupt function name must be set. )
+000044   00000000     + 128       	da	A(NoIRQ)	;17 interrupt vector ( Actual interrupt function name must be set. )
+000048   00000000     + 129       	da	A(NoIRQ)	;18 interrupt vector ( Actual interrupt function name must be set. )
+00004C   00000000     + 130       	da	A(NoIRQ)	;19 interrupt vector ( Actual interrupt function name must be set. )
+000050   00000000     + 131       	da	A(NoIRQ)	;20 interrupt vector ( Actual interrupt function name must be set. )
+000054   00000000     + 132       	da	A(NoIRQ)	;21 interrupt vector ( Actual interrupt function name must be set. )
+000058   00000000     + 133       	da	A(NoIRQ)	;22 interrupt vector ( Actual interrupt function name must be set. )
+00005C   00000000     + 134       	da	A(NoIRQ)	;23 interrupt vector ( Actual interrupt function name must be set. )
+000060   00000000     + 135       	da	A(NoIRQ)	;24 interrupt vector ( Actual interrupt function name must be set. )
+000064   00000000     + 136       	da	A(NoIRQ)	;25 interrupt vector ( Actual interrupt function name must be set. )
+000068   00000000     + 137       	da	A(NoIRQ)	;26 interrupt vector ( Actual interrupt function name must be set. )
+00006C   00000000     + 138       	da	A(NoIRQ)	;27 interrupt vector ( Actual interrupt function name must be set. )
+000070   00000000     + 139       	da	A(NoIRQ)	;28 interrupt vector ( Actual interrupt function name must be set. )
+000074   00000000     + 140       	da	A(NoIRQ)	;29 interrupt vector ( Actual interrupt function name must be set. )
+000078   00000000     + 141       	da	A(NoIRQ)	;30 interrupt vector ( Actual interrupt function name must be set. )
+                        142       #if BP_SLECT	; Using Debug Probe 
+00007C   00000000     + 143       	da	A(MonInterrupt)		; 31: MonInterrupt definition Do not Change!
+                        144       #else
+                        XXX       	da	A(NoIRQ)		; 31:
+                        146       #endif
+                        147       
+                        148       
+                        149       	org	0xc0			; _STEXT + 0xc0 (0x40c0)  Flash Option Area
+                        150       
+                        151       	;dc	0x05			; Flash Option WD2 Operation When STOP Mode, low-speed oscillation possible stop page9
+0000C0   82             152       	dc	0x28			; Select PORT2 POR0  INPUT 5V
+0000C1   F3             153       	dc	0x3f			; 
+                        154       	org	0xd0			; _STEXT + 0xd0 (0x40d0) address
+                        155       
+                        156       
+                        157       _TEXT		SECTION
+                        158       NoIRQ:					; No Use Interrupt
+000000   03             159       	rti
+                        160       
+                        161       	align 1
+                        162       
+                        163       
+                        164       ; Reset Start : Internal high-speed oscillation 20MHz, fs = 2.5MHz (CPUM default = 0x20 -> 8 divid
+                        165       
+                        166       Reset:
+                        167       
+000001   DE0001         168       	movw	STACKTOP,A0		; Initialize of STACK Pointer
+				..\System_files\MN101AF50D.lst    Page 4
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+000004   20A            169       	movw	A0,SP
+                        170       
+                        171       	;mov	0x30,D0			;
+000005_  A003           172       	mov	0x30,D0	
+000007_  294            173       	mov	D0,PSW			; All Interrupt Disable, Level 3
+                        174       
+                        175       
+                        176       ; HANDSHAKE Circuit Setting
+                        177       
+000009   026040         178       	mov	0x04,(HANDSHAKE)	; HANDSHAKE Circuit ON		Below Setting, Case of more than fs=10MHz, Register 
+                        179       
+                        180       
+                        181       ; High-Speed Oscillation Setting	Attention : Case of select External high-speed oscillation, neces
+                        182       ;							-> External terminal switching and External oscillation select do not at the same time
+                        183       
+                        184       #if SC_SLECT
+                        XXX       	;Internal high-speed oscillation using
+                        XXX       	mov	0x00,(OSCCNT)		; select of internal high-speed oscillation, fpll-div : stop, fpll-div : no di
+                        XXX       ;	mov	0x21,(CPUM)		; NORMAL-IDLE mode setting -> no necessary select 20MHz, necessary 16MHz switch
+                        XXX       	mov	0x82,(RCCNT)		; 16MHz select (16MHz select is "0x82")
+                        XXX       					; This switching do below fs=10MHz
+                        XXX       
+                        XXX       	;<<Attention>> switching 16MHz operation,
+                        XXX       	;there is necessary wait times of 30us
+                        XXX       	;please addition here
+                        XXX       
+                        XXX       ;	mov	0x20,(CPUM)		; NORMAL mode setting -> no necessary select 20MHz, necessary 16MHz switching
+                        XXX       
+                        XXX       
+                        198       #else
+                        199       	;External high-speed oscillation using
+00000C   02A111         200       	mov	0x11,(OSCCNT)		; select of external high-speed oscillation, fpll-div : stop, fpll-div : no di
+                        201       
+00000F   3D90FD300      202       	mov	0x00,(CHDRVSEL)		; External high-speed oscillation performance selection : Normal performance
+                        203       					; Low Voltage operation, select "igh performance", 5V operation is OK in "Normal performance"
+                        204       	; 选择外部寄存器就需要选择高速振荡器的模式。之后再等待稳定。
+                        205       	
+                        206       	;<<Attention>> Oscillation Stabilization Wait is necessary of external oscillation
+                        207       	;For the oscillation stabilization wait cycle required for External high-speed/low-speed frequenc
+                        208       	;it is recommended to consult the oscillator manufacturer for determining appropriate values
+                        209       	;please addition here
+                        210       	;mov	0x00,(CHDRVSEL) ;
+000013_  0C00           211       	movw	0,DW0			; D0弶婜壔丄埲屻敪怳巕埨掕懸偪乮敪怳巕埶懚乯	/* B@016YS[10/07/28]add */
+                        212       ext_wait:
+000015_  2541000        213       	addw	1,DW0			; 2cycle
+000019   CCA681         214       	cmpw	WAIT_EXT,DW0		; 2cycle
+00001C   233000       + 215       	bls	ext_wait		; 4cycle WAIT_EXT >= D0 偱 ext_wait傊
+                        216       
+00001F   381A1          217       	bset	(OSCCNT)1		; switching on External high-speed oscillation
+                        218       
+                        219       	; form here, fosc depend on external oscillation
+                        220       	; case of external oscillation 10MHz, operation fs = 1.25MHz
+                        221       
+                        222       	
+000021_  00             223       	nop				;
+000022_  00             224       	nop				;
+				..\System_files\MN101AF50D.lst    Page 5
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+000023_  02B118         225       	mov	0x81,(RCCNT)		; Internal high-speed oscillation control : disable
+000026_  026000         226       	mov	0x00,(HANDSHAKE)
+                        227       					; When the RCON flag is set to stop the internal high-speed oscillation
+                        228       					; after the operation clock is changed to the external high-speed oscillation
+                        229       #endif
+                        230       
+                        231       ;watch dog timer2 setting
+                        232       ;	mov	0x88,(PRTKEY)		; enable WD2MDSEL writing  50D无看门狗2
+                        233       ;	mov	0x00,(WD2MDSEL)		; Watch dog 2 disable
+                        234       ;	mov	0xff,(PRTKEY)		; disable writing to register  sean change 00->44 enable WDCTR
+                        235       
+                        236       ; Low-Speed Oscillation Setting
+000029_  02C100         237       	mov	0x00,(OSCSCNT)		; Operation clock selection : internal low-speed oscillation, P25/P26 functio
+                        238       ;	//mov	0x81,(RCSCNT)		; Internal low-speed oscillation control : Stop
+                        239       
+                        240       	;internal low-speed oscillation using or external low-speed oscillation using is necessary settin
+                        241       
+                        242       
+                        243       ; PLL Setting
+                        244       #if SC_SLECT
+                        XXX               mov	0x00,(PLLCNT)                ;ling 2012.11.6
+                        XXX       #if 0
+                        XXX       	;Internal high-speed oscillation using
+                        XXX       	mov	0x10,(PLLCNT)		; PLL use 2 multiplication select (16MHz / 2 divided) * 2 multiplication = 16M
+                        XXX       
+                        XXX       	bset	(PLLCNT)0		; PLL operation start
+                        XXX       	mov 0xA6,D0
+                        XXX       LOOP
+                        XXX       	add  -1,d0              ;Loop 100us wait (10MHz)
+                        XXX       	bne  LOOP               ;
+                        XXX       	;At microcontroller reset release, LSI starts with the internal ROM access method = HANDSHAKE
+                        XXX       	bset (PLLCNT)1          ;PLL clock operation
+                        XXX       #endif					; 
+                        258       #else
+                        259       	;External high-speed oscillation using
+                        260       #if testpll
+                        261               ;mov	0x00,(PLLCNT)		; PLL use 4 multiplication select 20171013 修改
+00002C_  02F101         262               mov	0x10,(PLLCNT)     ; PLL use 2 multiplication select 7.5MHz to 10MHz  20171013 修改
+                        263       
+00002F_  380F1          264       	bset	(PLLCNT)0		; PLL operation start
+                        265       #endif
+000032   A000           266       	mov	0,D0			; D0 register initialize
+                        267       pll_wait:
+000034   801            268       	add	1,D0			; 2cycle
+000035_  C023           269       	cmp	WAIT_TIME,D0		; 2cycle
+000037_  233000       + 270       	bls	pll_wait		; 3cycle WAIT_TIME >= D0 -> pll_wait
+                        271       #if testpll
+00003A_  381F1          272       	bset	(PLLCNT)1		; PLL clock operation
+                        273       #endif					; PLL use -> fosc=8MHz (external oscillation = 8MHz)
+                        274       #endif
+                        275       
+                        276       
+                        277       ; fs setting
+                        278       ;	mov	0x00,(CPUM)		; fs = 16MHz / 2 divided = 8MHz
+                        279       #if    SC_SLECT                         ;ling 2012 11 6
+                        XXX               mov	0x30,(CPUM)             ;16M--->4M
+				..\System_files\MN101AF50D.lst    Page 6
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+                        281       #else
+                        282       #if testpll
+                        283       	;mov	0x00,(CPUM)             ;  8M-->4M  2012.11.7
+00003D   020001         284       	mov	0x10,(CPUM)		; fs = 16MHz/4	@mk004    20171013 修改
+                        285       #else	
+                        XXX               mov	0x10,(CPUM)		; fs = 16MHz/4	@mk004
+                        287       #endif
+                        288       #endif
+                        289       	; fs = 16MHz (or later)
+                        290       
+                        291       
+                        292       ; fpll-div setting
+                        293       #if     SC_SLECT
+                        XXX              	mov	(OSCCNT),D0
+                        XXX       	or	0x80,D0			; 4 分频   0x40
+                        XXX       	mov	D0,(OSCCNT)		; oscillation dividing selection of fpll-div
+                        XXX       	bclr	(OSCCNT)4		; fpll-div enable
+                        298       #else
+000040   60A1           299       	mov	(OSCCNT),D0
+                        300       #if   testpll
+                        301       	
+                        302       	;or      0x20,D0                 ;  4M-->2M  2012.11.7   2014022201
+000042   1800           303       	or      0x00,D0                 ;  0 分频 no divide  20171013 修改
+                        304       #else
+                        XXX               or	0x40,D0			; 4 分频   0x40
+                        306       #endif
+000044   70A1           307       	mov	D0,(OSCCNT)		; oscillation dividing selection of fpll-div
+                        308       
+000046   38CA1          309       	bclr	(OSCCNT)4		; fpll-div enable
+                        310       #endif
+000048_  3D965E310      311       	mov	0x01,(OSCLOCK)		; Oscillation Control Register Protect Register : Writing disable
+                        312       ;LVI check 
+                        313       
+                        314       ;      mov      0x71,D0
+                        315       ;      mov      D0,(LVIMD)               ;要等待2ms 在进行中断处理，下面的清RAM操作大概是2ms
+                        316       ;lviloop:
+                        317       ;      mov      (LVIMD),D0
+                        318       ;      and      0x02,D0
+                        319       ;      cmp      0,D0
+                        320       ;      beq      lviloop
+                        321             
+                        322             
+                        323       ; All RAM area clear zero
+00004D   0E00           324       	movw	0x0000,A0		; _BSS area beginning address -> A0
+00004F   84             325       	sub	D0,D0			; D0 = 0
+                        326       clearall:                               ;4M 大概清Ram时间为2ms
+000050   58             327       	mov	D0,(A0)
+000051   EC1            328       	addw	0x1,A0
+000052_  DCFFF0         329       	cmpw	STACKTOP-1,A0		; RAM area last address ?
+000055_  9E000        + 330       	blt	clearall			; _BSSEND > A0 -> clear1
+                        331       
+                        332       					; static variable with default valule initialize
+                        333       ; RAM area initialize
+                        334       					; static variable initialize
+000058   0E00           335       	movw	0x0000,A0		; _BSS area beginning address -> A0
+00005A   84             336       	sub	D0,D0			; D0 = 0
+				..\System_files\MN101AF50D.lst    Page 7
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+                        337       clear1:
+00005B   58             338       	mov	D0,(A0)
+00005C   EC1            339       	addw	0x1,A0
+00005D_  DC0000       + 340       	cmpw	_BSSEND,A0		; RAM area last address ?
+000060_  9E000        + 341       	blt	clear1			; _BSSEND > A0 -> clear1
+                        342       
+                        343       					; static variable with default valule initialize
+                        344       raminit:
+000063   DE0000       + 345       	movw	_ROMDATA,A0
+000066   DF0000       + 346       	movw	_DATA,A1
+000069   DC0000       + 347       	cmpw	_GROMDATA,A0
+00006C   9A000        + 348       	beq	next1
+                        349       init1:					; ROMDATA(A0) -> DATA(A1)
+00006E_  48             350       	mov	(A0),D0
+00006F_  5C             351       	mov	D0,(A1)
+000070_  EC1            352       	addw	0x1,A0
+000072   ED1            353       	addw	0x1,A1
+000073_  DC0000       + 354       	cmpw	_GROMDATA,A0
+000076_  9B000        + 355       	bne	init1
+                        356       
+                        357       next1:
+000079   DE0000       + 358       	movw	_GROMDATA,A0
+00007C   DF0000       + 359       	movw	_GDATA,A1
+00007F   DC0000       + 360       	cmpw	_ROMDATAEND,A0
+000082   9A000        + 361       	beq	next2
+                        362       init2:					; GROMDATA(A0) -> GDATA(A1)
+000084_  48             363       	mov	(A0),D0
+000085_  5C             364       	mov	D0,(A1)
+000086_  EC1            365       	addw	0x1,A0
+000088   ED1            366       	addw	0x1,A1
+000089_  DC0000       + 367       	cmpw	_ROMDATAEND,A0
+00008C_  9B000        + 368       	bne	init2
+                        369       
+                        370       next2:					; Register initialize
+00008F   240            371       	subw	DW0,DW0
+000090_  281            372       	movw	DW0,DW1
+000092   24C            373       	movw	DW0,A0
+000093_  24D            374       	movw	DW0,A1
+                        375       					; call main function
+                        376       _loop1:
+000095   3DB000000    + 377       	jsr	_main
+                        378       
+000099_  99000        + 379       	bra	_loop1
+                        380       
+                        381       
+                        382       
+                        383       ; Interrupt control function
+                        384       
+                        385       
+                        386       
+                        387       _EnableIrq:				;all interrupt enable function
+00009C   29304          388       	or	0x40,PSW
+00009E_  01             389       	rts
+                        390       
+                        391       _DisableIrq:				;all interrupt disable function
+00009F_  292FB          392       	and	0xBF,PSW
+				..\System_files\MN101AF50D.lst    Page 8
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+0000A2   01             393       	rts
+                        394       
+                        395       
+                        396       #if BP_SLECT				; "0" when monitor is not used (for Debug Probe)
+                        397       
+                        398       ;;;;; From here to monitor program. Please do not change.
+                        399       ;;;;; Please do not set the breakpoint.
+                        400       
+                        401       #define DEBUG_CMDFLG	0		; CMDFLG clear
+                        402       #define OCDMONVER       0x0100
+                        403       #define OCDRESERVE1     0x55AA
+                        404       #define OCDRESERVE2     0x33CC
+                        405       #define MONCT           0x3F0C
+                        406       #define MONDT           0x3F0D
+                        407       #define MONCTxx         0x3FFE
+                        408       
+        =00000020       409       ChangeMonitorModeFlag   equ  0x20        ;Monitor Mode ON Flag
+        =00000040       410       ChangeDataFlag          equ  0x40        ;
+        =00000080       411       ChangeCommandFlag       equ  0x80        ;
+        =00000002       412       ClearFlag               equ  0x02        ;CommandFlag and DataFlag  ClearFlag
+        =00000040       413       CheckMonitorModeFlag    equ  0x40        ;Monitor Mode Check Flag
+        =00000020       414       CheckCommandFlag        equ  0x20        ;Monitor and Checkcommand Flag
+        =00000010       415       CheckDataFlag           equ  0x10        ;Monitor and Cheack Data Flag
+        =00000002       416       CheckESCBreak           equ  0x02        ;ESC Break Flag  
+        =00000004       417       CheckRomEvent           equ  0x04        ;ROM Event Flag
+        =00000008       418       CheckRamEvent           equ  0x08        ;RAM Event Flag
+                        419       
+                        420       	GLOBAL   MonInterrupt
+                        421       
+                        422       _STEXT2      SECTION CODE,PUBLIC,0
+                        423       _STEXT2      SECTION
+                        424       	align 1
+                        425       
+                        426       OCDMonitorReserve:                       ; Monitor-code
+000000   AA55           427           DW  OCDRESERVE1                      ; Monitor-code
+000002   CC33           428           DW  OCDRESERVE2                      ; Monitor-code
+000004   0010           429           DW  OCDMONVER                        ; Monitor-version
+000006   0000         + 430           DW  OCDMonitorEnd - MonInterrupt     ; Monitor-code size
+                        431       
+                        432       	align 1
+                        433       MonInterrupt:                            ; DW0,DW1,A0,A1 to SP
+000008   FD8            434           addw    -8,SP                        ; Monitor-code
+000009_  F66            435           movw    dw0,(6,SP)                   ; Monitor-code
+00000B   F74            436           movw    dw1,(4,SP)                   ; Monitor-code
+00000C_  F42            437           movw    a0,(2,SP)                    ; Monitor-code
+00000E   F50            438           movw    a1,(0,SP)                    ; Monitor-code
+                        439       
+                        440       OCDSetMonitorModeFlag:                   ; SET MONITOR
+00000F_  60C0           441           mov     (MONCT),d0                   ; Monitor-code
+000011_  20C04          442           btst    0x40,d0                      ; Monitor-code
+000014   9B000        + 443           bne     OCDWaitDataFlag              ; Monitor-code
+000016_  A002           444           mov     ChangeMonitorModeFlag,d0     ; Monitor-code
+000018_  70C0           445           mov     d0,(MONCT)                   ; Monitor-code
+                        446           
+                        447       OCDWaitDataFlag:                         ; CHECK DataFlag
+                        448       #if DEBUG_CMDFLG
+				..\System_files\MN101AF50D.lst    Page 9
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+                        XXX           mov     0,(MONCTxx)
+                        450       #endif
+00001A_  60C0           451           mov     (MONCT),d0                   ; Monitor-code
+00001C_  20C01          452           btst    CheckDataFlag,d0             ; Monitor-code
+00001F   9A000        + 453           beq     OCDWaitDataFlag              ; Monitor-code
+                        454       
+                        455       OCDSetSPLow:                             ; SET SP_L
+000021_  208            456           movw    SP,a0                        ; Monitor-code
+000023   2CC            457           movw    a0,dw0                       ; Monitor-code
+000024_  70D0           458           mov     d0,(MONDT)                   ; Monitor-code
+                        459       
+                        460       OCDClearDataFlag:                        ; CLR DATA and COMMAND
+000026_  A020           461           mov     ClearFlag,d0                 ; Monitor-code
+000028_  70C0           462           mov     d0,(MONCT)                   ; Monitor-code
+                        463       
+                        464       OCDWaitDataFlag2:                        ; CHECK DataFlag
+                        465       #if DEBUG_CMDFLG
+                        XXX           mov     0,(MONCTxx)
+                        467       #endif
+00002A_  60C0           468           mov     (MONCT),d0                   ; Monitor-code
+00002C_  20C01          469           btst    CheckDataFlag,d0             ; Monitor-code
+00002F   9A000        + 470           beq     OCDWaitDataFlag2             ; Monitor-code
+                        471       
+                        472       OCDSetSPHi:                              ; SET SP_H
+000031_  71D0           473           mov     d1,(MONDT)                   ; Monitor-code
+                        474       
+                        475       OCDClearDataAndCommandFlag:              ; CLR DATA and COMMAND
+000033_  A020           476           mov ClearFlag,d0                     ; Monitor-code
+000035_  70C0           477           mov d0,(MONCT)                       ; Monitor-code
+                        478       
+                        479       OCDCommandLoop:                          ; LOOP MON
+                        480       #if DEBUG_CMDFLG
+                        XXX           mov     0,(MONCTxx)
+                        482       #endif
+000037_  60C0           483           mov     (MONCT),d0                   ; Monitor-code
+000039_  20C04          484           btst    CheckMonitorModeFlag,d0      ; Monitor-code
+00003C   9A000        + 485           beq     OCDGoProgram                 ; Monitor-code
+00003E_  20C02          486           btst    CheckCommandFlag,d0          ; Monitor-code
+000041   9A000        + 487           beq     OCDCommandLoop               ; Monitor-code
+                        488       
+000043_  00             489           nop                                  ; for debug
+                        490       
+                        491       OCDChangeSP:                             ; CHANGE SP
+000044_  E46            492           movw    (6,SP),a0                    ; Monitor-code
+000046   20A            493           movw    a0,sp                        ; Monitor-code
+000047_  99000        + 494           bra     OCDClearDataAndCommandFlag   ; Monitor-code
+                        495                                                ; Monitor-code
+                        496       OCDGoProgram:
+00004A   E66            497           movw    (6,SP),dw0                   ; Monitor-code
+00004B_  E74            498           movw    (4,SP),dw1                   ; Monitor-code
+00004D   E42            499           movw    (2,SP),a0                    ; Monitor-code
+00004E_  E50            500           movw    (0,SP),a1                    ; Monitor-code
+000050   FC80           501           addw    8,SP                         ; Monitor-code
+000052   03             502           rti                                  ; Monitor-code
+                        503       	align 1
+                        504       OCDMonitorEnd:
+				..\System_files\MN101AF50D.lst    Page 10
+***	mn101E Cross Assembler	***
+Loc       Object      Line      Source
+
+                        505       
+                        506       #endif
+                        507       
+                        508       
+                        509       	END
+
+rom size :454	(Hex. 000001C6)
+no error in this assembly
+no warning in this assembly
+
+				..\System_files\MN101AF50D.lst    Page 11
+***     Symbol Table    ***
+
+
+00000080   A ChangeCommandFlag
+00000040   A ChangeDataFlag
+00000020   A ChangeMonitorModeFlag
+00000020   A CheckCommandFlag
+00000010   A CheckDataFlag
+00000002   A CheckESCBreak
+00000040   A CheckMonitorModeFlag
+00000008   A CheckRamEvent
+00000004   A CheckRomEvent
+00000002   A ClearFlag
+00000008   T MonInterrupt
+00000000   T NoIRQ
+00000044_  T OCDChangeSP
+00000033_  T OCDClearDataAndCommandFlag
+00000026_  T OCDClearDataFlag
+00000037_  T OCDCommandLoop
+0000004A   T OCDGoProgram
+00000053   T OCDMonitorEnd
+00000000   T OCDMonitorReserve
+0000000F_  T OCDSetMonitorModeFlag
+00000031_  T OCDSetSPHi
+00000021_  T OCDSetSPLow
+0000001A_  T OCDWaitDataFlag
+0000002A_  T OCDWaitDataFlag2
+00000001   T Reset
+00000000   D _BSS
+00000000   D _BSSEND
+00000000   T _CONST
+00000000   D _DATA
+0000009F_  T _DisableIrq
+00000000   T _ENTRY
+0000009C   T _EnableIrq
+00000000   D _GBSS
+00000000   T _GCONST
+00000000   D _GDATA
+00000000   T _GROMDATA
+00000000  +U _INT_TM0
+00000000  +U _INT_TM1
+00000000  +U _INT_TM3
+00000000   T _ROMDATA
+00000000   T _ROMDATAEND
+00000000   T _STEXT
+00000000   T _STEXT2
+00000000   T _TEXT
+00000095   T _loop1
+00000000  +U _main
+00000000   D _vRAM_NMI
+0000005B   T clear1
+00000050   T clearall
+00000015_  T ext_wait
+0000006E_  T init1
+00000084_  T init2
+00000079   T next1
+0000008F   T next2
+00000034   T pll_wait
+00000063   T raminit
+

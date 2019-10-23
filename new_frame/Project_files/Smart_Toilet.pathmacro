@@ -1,0 +1,14 @@
+ProjectDir = C:\Users\Mr.Yellow\Desktop\new_frame\Project_files\\
+ProjectPath = C:\Users\Mr.Yellow\Desktop\new_frame\Project_files
+ProjectExt = .dfp5
+ProjectFileName = Smart_Toilet.dfp5
+ProjectPathName = C:\Users\Mr.Yellow\Desktop\new_frame\Project_files\Smart_Toilet.dfp5
+DFInstallDir = C:\Program Files (x86)\Panasonic\DFBuilder5\\
+DFInstallPath = C:\Program Files (x86)\Panasonic\DFBuilder5
+TargetDir = .\\
+TargetExt = .ex
+TargetFileName = Smart_Toilet.ex
+TargetPath = .\Smart_Toilet.ex
+CCInstallDir = C:\Program Files (x86)\Panasonic\DFBuilder5\BuiltInCC\CC101\2_0R5\\
+CCInstallPath = C:\Program Files (x86)\Panasonic\DFBuilder5\BuiltInCC\CC101\2_0R5
+CCInstallNSPath = C:\PROGRA~2\Panasonic\DFBuilder5\BuiltInCC\CC101\2_0R5

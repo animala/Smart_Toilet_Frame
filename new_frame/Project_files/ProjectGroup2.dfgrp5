@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DB_ProjGrp
+	Dir="C:\Users\Mr.Yellow\Desktop\new_frame\Project_files\"
+	Name="ProjectGroup2"
+	DFEditorKeyword="C:int,unsigned,long;C++:int,unsigned"
+	CodePage="936"
+	SystemCodePage="936"
+	TimeStamp="0x5d78d00d"
+	TempGrp="1"
+>
+	<ProjectList>
+		<Smart_Toilet
+			File=".\Smart_Toilet.dfp5"
+		/>
+	</ProjectList>
+</DB_ProjGrp>
