@@ -51,7 +51,7 @@ void delay_us(uint_16 n)
 		n--;
 }
 
-
+// 2019 - 10 - 22 ¸üÐÂ
 
 
 void State_init(void);
